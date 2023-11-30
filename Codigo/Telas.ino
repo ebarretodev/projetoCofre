@@ -74,7 +74,13 @@ void telaSenhaErrada(){
 }
 
 /* Telas para alterar senha */
-
+void telaDesejaTrocarSenha(){
+  lcd.clear();
+  lcd.setCursor(2,0);
+  lcd.print("Trocar senha?");
+  lcd.setCursor(0,1);
+  lcd.print("SIM(A)    NAO(B)");
+  }
 
 /* Telas para alterar RFID */
 void telaDesejaTrocarRfid(){

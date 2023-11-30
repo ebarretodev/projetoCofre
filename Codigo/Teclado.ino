@@ -32,27 +32,26 @@ void capturaTecla() {
 void capturaTeclaSenha() {
   tecla = teclado.getKey();
   if (tecla != NO_KEY) {
-    if (tecla == 'A') {}
-
-    if (tecla == 'B') {
-      if (rfidCadastrado != "") {
-        telaDesejaTrocarRfid();
-        while (HIGH) {
-          capturaTecla();
-          Serial.println(tecla);
-          if (tecla == 'A' || tecla == 'B') {
-            break;
-          }
+    if (tecla == 'A') {
+      telaDesejaTrocarSenha();
+      while (HIGH) {
+        capturaTecla();
+        Serial.println(tecla);
+        if (tecla == 'A' || tecla == 'B' || tecla == 'C') {
+          break;
         }
-        if (tecla == 'B') {
-          telaInicio();
-          return;
-        }
+      }
+      if (tecla == 'B' || tecla == 'C') {
+        telaInicio();
+        return;
       }
       telaDigiteSenha();
       while (HIGH) {
         capturaTecla();
         if (tecla != NO_KEY) {
+          if (tecla == 'C') {
+            break;
+          }
           senhaDigitada += tecla;
           lcd.setCursor(6, 1);
           for (int i = 0; i < senhaDigitada.length() - 1; i++) {
@@ -68,9 +67,58 @@ void capturaTeclaSenha() {
           break;
         }
       }
+    }
+
+    if (tecla == 'B') {
+      if (rfidCadastrado != "") {
+        telaDesejaTrocarRfid();
+        while (HIGH) {
+          capturaTecla();
+          Serial.println(tecla);
+          if (tecla == 'A' || tecla == 'B' || tecla == 'C') {
+            break;
+          }
+        }
+        if (tecla == 'B' || tecla == 'C') {
+          telaInicio();
+          return;
+        }
+      }
+      telaDigiteSenha();
+      while (HIGH) {
+        capturaTecla();
+        if (tecla != NO_KEY) {
+          if (tecla == 'C') {
+            break;
+          }
+          senhaDigitada += tecla;
+          lcd.setCursor(6, 1);
+          for (int i = 0; i < senhaDigitada.length() - 1; i++) {
+            lcd.print('*');
+          }
+          lcd.print(tecla);
+        }
+        if (senhaDigitada.length() == 5) {
+          if (senhaDigitada != senhaCadastrada) {
+            telaInicio();
+            return;
+          }
+          break;
+        }
+      }
+      if (tecla == 'C') {
+        telaInicio();
+        return;
+      }
       telaEncosteRfid();
       // Loop para capturar o RFID novo
-      while(HIGH) {
+      while (HIGH) {
+        capturaTecla();
+        if (tecla != NO_KEY) {
+          if (tecla == 'C') {
+            break;
+          }
+        }
         if (mfrc522.PICC_IsNewCardPresent()) {
           // Seleciono um cartao da lista
           if ( mfrc522.PICC_ReadCardSerial()) {
@@ -92,6 +140,10 @@ void capturaTeclaSenha() {
             break;
           }
         }
+      }
+      if (tecla == 'C') {
+        telaInicio();
+        return;
       }
       telaRfidCadastrado();
       delay(3000);
@@ -122,12 +174,19 @@ void capturaTeclaSenha() {
           lcd.setCursor(0, 1);
           lcd.print(tempoRestante);
         }
-        if (dTeclaSolta) {
+        capturaTecla();
+        if (tecla != NO_KEY) {
+          if (tecla == 'C') {
+            break;
+          }
+        }
+        if (dTeclaSolta ) {
           telaInicio();
           break;
         }
       }
-      if (dTeclaSolta) {
+      if (dTeclaSolta || tecla == 'C') {
+        telaInicio();
         return;
       }
       rfidCadastrado = "";
@@ -156,12 +215,16 @@ void keypadEvent(KeypadEvent key) {
     case PRESSED:
       if (key == 'D') {
         dTeclaSolta = LOW;
+        Serial.println("Tecla pressionada");
       }
       break;
 
     case RELEASED:
       if (key == 'D') {
+        Serial.println("Tecla solta");
         dTeclaSolta = HIGH;
+      } else if (key == 'C') {
+        telaInicio();
       }
       break;
 
