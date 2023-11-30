@@ -35,6 +35,7 @@ byte rowPins[rows] = {9, 8, 7, 6}; //connect to the row pinouts of the keypad
 byte colPins[cols] = {5, 4, 3, 2}; //connect to the column pinouts of the keypad
 Keypad teclado = Keypad( makeKeymap(keys), rowPins, colPins, rows, cols );
 char tecla;
+bool dTeclaSolta;
 
 /* Configuração do leitor RFID */ 
 const byte SS_PIN = 10;
@@ -50,6 +51,7 @@ void initRfid(){
 /* Variaveis para controle do RFID */ 
 String conteudo;
 String rfidCadastrado = "";
+//String rfidCadastrado = "45 7d 0b ad";
 
 /* Variaveis para controle da Senha */ 
 int tentativas = 3;
@@ -72,6 +74,8 @@ void setup(){
   //Inicialização da tranca
   pinMode(PINO_TRANCA, OUTPUT);                                             
   fecharTranca();
+  // Add an event listener for this keypad
+  teclado.addEventListener(keypadEvent); 
   //Inicialização do LCD
   lcd.init();
   lcd.backlight();

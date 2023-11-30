@@ -77,7 +77,36 @@ void telaSenhaErrada(){
 
 
 /* Telas para alterar RFID */
+void telaDesejaTrocarRfid(){
+  lcd.clear();
+  lcd.setCursor(2,0);
+  lcd.print("Trocar RFID?");
+  lcd.setCursor(0,1);
+  lcd.print("SIM(A)    NAO(B)");
+  }
 
+void telaDigiteSenha(){
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Digite a senha");
+  }
+
+
+void telaEncosteRfid(){
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Aproxime");
+  lcd.setCursor(0,1);
+  lcd.print("o RFID!!");
+  }
+
+void telaRfidCadastrado(){
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("RFID");
+  lcd.setCursor(0,1);
+  lcd.print("cadastrado!!");
+  }
 
 /* Telas para Factory Reset */
 void telaFactoryReset(){
