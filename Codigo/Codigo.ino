@@ -57,6 +57,8 @@ String rfidCadastrado = "";
 int tentativas = 3;
 String senhaDigitada;
 String senhaCadastrada = "1234#";
+String novaSenhaDigitada;
+String confirmaNovaSenhaDigitada;
 
 /* 
  * Configuração do LCD 

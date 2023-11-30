@@ -30,8 +30,12 @@ void capturaTecla() {
 
 */
 void capturaTeclaSenha() {
+  /* Pega a tecla do teclado para analisar */
   tecla = teclado.getKey();
+  /* Senão tiver tecla pula a lógica para otimizar o código */
   if (tecla != NO_KEY) {
+
+    /* tecla 'A': Alterar a senha */
     if (tecla == 'A') {
       telaDesejaTrocarSenha();
       while (HIGH) {
@@ -49,7 +53,9 @@ void capturaTeclaSenha() {
       while (HIGH) {
         capturaTecla();
         if (tecla != NO_KEY) {
-          if (tecla == 'C') {
+          if (tecla == 'A' || tecla == 'B' ||  tecla == 'C' || tecla == 'D' ) {
+            tecla = NO_KEY;
+            telaInicio();
             break;
           }
           senhaDigitada += tecla;
@@ -61,14 +67,74 @@ void capturaTeclaSenha() {
         }
         if (senhaDigitada.length() == 5) {
           if (senhaDigitada != senhaCadastrada) {
+            telaSenhaNaoConfere();
+            delay(3000);
             telaInicio();
             return;
           }
           break;
         }
       }
+      telaDigiteNovaSenha();
+      while (HIGH) {
+        capturaTecla();
+        if (tecla != NO_KEY) {
+          if (tecla == 'A' || tecla == 'B' ||  tecla == 'C' || tecla == 'D' || tecla == '#'  || tecla == '*' ) {
+            tecla = NO_KEY;
+            telaInicio();
+            break;
+          }
+          novaSenhaDigitada += tecla;
+          lcd.setCursor(6, 1);
+          for (int i = 0; i < novaSenhaDigitada.length() - 1; i++) {
+            lcd.print('*');
+          }
+          lcd.print(tecla);
+        }
+        if (novaSenhaDigitada.length() == 4) {
+          novaSenhaDigitada += "#";
+          break;
+        }
+      }
+      telaConfirmeNovaSenha();
+      while (HIGH) {
+        capturaTecla();
+        if (tecla != NO_KEY) {
+          if (tecla == 'A' || tecla == 'B' ||  tecla == 'C' || tecla == 'D' || tecla == '#'  || tecla == '*' ) {
+            tecla = NO_KEY;
+            telaInicio();
+            break;
+          }
+          confirmaNovaSenhaDigitada += tecla;
+          lcd.setCursor(6, 1);
+          for (int i = 0; i < confirmaNovaSenhaDigitada.length() - 1; i++) {
+            lcd.print('*');
+          }
+          lcd.print(tecla);
+        }
+        if (confirmaNovaSenhaDigitada.length() == 4) {
+          confirmaNovaSenhaDigitada += "#";
+          break;
+        }
+      }
+      if (novaSenhaDigitada == confirmaNovaSenhaDigitada) {
+        senhaCadastrada = novaSenhaDigitada;
+      } else {
+        telaSenhasNaoConfere();
+        delay(3000);
+        telaInicio();
+        return;
+      }
+
+      telaSenhaAlteradaComSucesso();
+      delay(2000);
+      novaSenhaDigitada = "";
+      confirmaNovaSenhaDigitada = "";
+      telaInicio();
+      return;
     }
 
+    /* tecla 'B': Cadastrar o RFID */
     if (tecla == 'B') {
       if (rfidCadastrado != "") {
         telaDesejaTrocarRfid();
@@ -106,6 +172,8 @@ void capturaTeclaSenha() {
           break;
         }
       }
+
+      /* tecla 'C': Retornar ao Inicio */
       if (tecla == 'C') {
         telaInicio();
         return;
@@ -124,7 +192,7 @@ void capturaTeclaSenha() {
           if ( mfrc522.PICC_ReadCardSerial()) {
             //Mostra UID na serial
             Serial.print("UID da tag :");
-            // Imprime na Serial e salva o cartao na variavel conteudo
+            // Imprime na Serial e salva o  valor do cartao na variavel conteudo
             conteudo = "";
             byte letra;
             for (byte i = 0; i < mfrc522.uid.size; i++) {
@@ -157,11 +225,13 @@ void capturaTeclaSenha() {
       return;
     }
 
+    /* tecla 'D': Pressionado por 5s Factory Reset */
     if (tecla == 'D') {
       unsigned long momentoPressionado;
       momentoPressionado = millis();
       unsigned long tempoPressionado = 0;
       bool telaApresentada = LOW;
+      //Verifica se o tempo que ficou pressionado for maios que 10s
       while (tempoPressionado < tempoParaResetFabrica) {
         unsigned long tempoAgora = millis();
         tempoPressionado = tempoAgora - momentoPressionado;
@@ -189,6 +259,7 @@ void capturaTeclaSenha() {
         telaInicio();
         return;
       }
+      // Valores para padrão de fábrica
       rfidCadastrado = "";
       senhaCadastrada = "1234#";
       telaConfirmaFactoryReset();
@@ -207,9 +278,11 @@ void capturaTeclaSenha() {
   }
 }
 
+/* Evento de teclado, criado para controle da Tecla D
+   Utilizado para monitorar se a tecla D está pressionada
+   ou não.
+*/
 
-
-// Taking care of some special events.
 void keypadEvent(KeypadEvent key) {
   switch (teclado.getState()) {
     case PRESSED:
